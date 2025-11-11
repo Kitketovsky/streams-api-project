@@ -9,17 +9,17 @@ import { LogStatsTransform } from "./transforms/LogStatsTransform.js";
 import { LogReportTransform } from "./transforms/LogReportTransform.js";
 import { ProgressTransform } from "./transforms/ProgressTransform.js";
 
-function analyzeLogs(logFileName) {
+function analyzeLogs(logFileName: string) {
   const logFilePath = path.join(process.cwd(), logFileName);
 
   if (!fs.existsSync(logFilePath)) {
-    throw new Error("No file exists on path '%s'", logFilePath);
+    throw new Error(`No file exists on path '${logFilePath}'`);
   }
 
   const logFileStat = fs.statSync(logFilePath);
 
   if (!logFileStat.isFile()) {
-    throw new Error("Path '%s' is not empty, but it's not a file", logFilePath);
+    throw new Error(`Path '${logFilePath}' is not empty, but it's not a file`);
   }
 
   const rl = readline.createInterface({

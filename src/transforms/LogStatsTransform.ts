@@ -1,6 +1,13 @@
-import { Transform } from "node:stream";
+import { Transform, type TransformCallback } from "node:stream";
 
 export class LogStatsTransform extends Transform {
+  stats: {
+    ips: Set<string>;
+    routes: Map<string, number>;
+    statusCodes: Map<string, number>;
+    totalBandwidth: number;
+  };
+
   constructor() {
     super({ objectMode: true });
 
@@ -12,7 +19,16 @@ export class LogStatsTransform extends Transform {
     };
   }
 
-  _transform({ ip, route, statusCode, bandwidth }, _, callback) {
+  _transform(
+    {
+      ip,
+      route,
+      statusCode,
+      bandwidth,
+    }: { ip: string; route: string; statusCode: string; bandwidth: string },
+    _: BufferEncoding,
+    callback: TransformCallback
+  ) {
     this.stats.ips.add(ip);
     this.stats.routes.set(route, (this.stats.routes.get(route) || 0) + 1);
     this.stats.statusCodes.set(
@@ -24,7 +40,7 @@ export class LogStatsTransform extends Transform {
     callback();
   }
 
-  _flush(callback) {
+  _flush(callback: TransformCallback) {
     this.push(this.stats);
     callback();
   }

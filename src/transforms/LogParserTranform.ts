@@ -1,10 +1,6 @@
-import { Transform } from "node:stream";
+import { Transform, type TransformCallback } from "node:stream";
 
 export class LogParserTransform extends Transform {
-  /**
-   * RegExp for Combined Log Format
-   * @link https://en.wikipedia.org/wiki/Common_Log_Format
-   */
   regex = new RegExp(
     /^(\S+) - - \[([^\]]+)\] "(\w+) (\S+) HTTP\/[\d.]+" (\d{3}) (\d+) "([^"]*)" "([^"]*)" (\d+)ms$/
   );
@@ -13,7 +9,11 @@ export class LogParserTransform extends Transform {
     super({ objectMode: true });
   }
 
-  _transform(line, encoding, callback) {
+  _transform(
+    line: string,
+    encoding: BufferEncoding,
+    callback: TransformCallback
+  ) {
     if (!line) {
       throw new Error("No 'line' has been provided");
     }
@@ -21,7 +21,7 @@ export class LogParserTransform extends Transform {
     const match = this.regex.exec(line);
 
     if (!match) {
-      throw new Error("Could not parse line: '%s'", line);
+      throw new Error(`Could not parse line: '${line}'`);
     }
 
     const [

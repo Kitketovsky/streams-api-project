@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --run start -- --watch"
+    "start": "tsx index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
     "@types/node": "^24.10.0",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "cli-progress": "^3.12.0",

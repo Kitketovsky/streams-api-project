@@ -1,8 +1,13 @@
-import { Writable } from "node:stream";
+import { Writable, type TransformCallback } from "node:stream";
 import Table from "cli-table3";
 import fs from "node:fs";
+import type { LogStatsTransform } from "./LogStatsTransform.js";
 
 export class LogReportTransform extends Writable {
+  buffer: Buffer[];
+  outputPath: string;
+  tableConfigForFileOutput: Table.TableConstructorOptions;
+
   constructor(outputPath = "./output.txt") {
     super({ objectMode: true });
 
@@ -34,13 +39,15 @@ export class LogReportTransform extends Writable {
     };
   }
 
-  _write(chunk, _, callback) {
+  _write(chunk: any, encoding: BufferEncoding, callback: TransformCallback) {
     this.buffer.push(chunk);
     callback();
   }
 
-  _final(callback) {
-    const stats = this.buffer[this.buffer.length - 1];
+  _final(callback: TransformCallback) {
+    const stats = this.buffer[
+      this.buffer.length - 1
+    ] as unknown as LogStatsTransform["stats"];
 
     const { ipsTable, routesTable, statusCodesTable } =
       this.generateReport(stats);
@@ -50,7 +57,7 @@ export class LogReportTransform extends Writable {
     callback();
   }
 
-  generateReport(stats) {
+  generateReport(stats: LogStatsTransform["stats"]) {
     const routesTable = new Table({
       head: ["Route", "Number of calls"],
       ...this.tableConfigForFileOutput,

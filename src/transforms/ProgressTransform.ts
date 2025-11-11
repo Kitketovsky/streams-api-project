@@ -1,8 +1,12 @@
-import { Transform } from "node:stream";
+import { Transform, type TransformCallback } from "node:stream";
 import CliProgress from "cli-progress";
 
 export class ProgressTransform extends Transform {
-  constructor(totalSize) {
+  transferred: number;
+  totalSize: number;
+  progressBar: CliProgress.SingleBar;
+
+  constructor(totalSize: number) {
     super();
 
     this.transferred = 0;
@@ -22,7 +26,7 @@ export class ProgressTransform extends Transform {
     });
   }
 
-  _transform(chunk, _, callback) {
+  _transform(chunk: Buffer, _: BufferEncoding, callback: TransformCallback) {
     this.transferred += chunk.length;
     this.updateBar(this.transferred);
 
@@ -30,14 +34,14 @@ export class ProgressTransform extends Transform {
     callback();
   }
 
-  updateBar(transferred) {
+  updateBar(transferred: number) {
     this.progressBar.update(transferred, {
       value_formatted: this.formatBytes(transferred),
       total_formatted: this.formatBytes(this.totalSize),
     });
   }
 
-  formatBytes(bytes) {
+  formatBytes(bytes: number) {
     if (bytes < 1024) return bytes.toFixed(2) + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
     if (bytes < 1024 * 1024 * 1024)
